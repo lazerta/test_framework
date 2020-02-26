@@ -1,0 +1,6 @@
+# Project exclude paths
+/generic/target/
+/generic/driver
+/.idea
+test_framework.iml
+

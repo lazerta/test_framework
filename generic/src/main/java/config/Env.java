@@ -1,0 +1,26 @@
+package config;
+
+import lombok.Data;
+import org.yaml.snakeyaml.Yaml;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Data
+public final class Env {
+    private String os = "windows";
+    private String osVersion = "10";
+    private boolean isCloud = false;
+    private String cloudName;
+    private String url = "https://www.google.com";
+    private int implicitWaitTime = 0;
+    private int pageLoadTimeout = 300;
+    private String cloudUsername;
+    private String cloudAccessKey;
+    private Map<String, String> Capability = new HashMap<>();
+
+
+}

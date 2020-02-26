@@ -1,0 +1,6 @@
+browser:
+  name: chrome
+env:
+  os: mac
+  osVersion: 99
+  cloud: true
