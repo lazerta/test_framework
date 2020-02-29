@@ -1,5 +1,6 @@
 package config;
 
+import base.BrowserDriver;
 import lombok.Data;
 import org.yaml.snakeyaml.Yaml;
 
@@ -21,6 +22,8 @@ public final class Env {
     private String cloudUsername;
     private String cloudAccessKey;
     private Map<String, String> Capability = new HashMap<>();
+    private String screenshotPath = System.getProperty("user.dir") + "/screenshots/";
+    private String reportOutputDirectory = null;
 
 
 }

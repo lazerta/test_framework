@@ -1,6 +1,6 @@
 browser:
   name: chrome
 env:
-  os: mac
-  osVersion: 99
-  cloud: true
+  os: windows
+  osVersion: 10
+  url: https://www.facebook.com/

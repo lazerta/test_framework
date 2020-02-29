@@ -1,0 +1,6 @@
+browser:
+  name: chrome
+env:
+  os: windows
+  osVersion: 10
+  url: https://www.facebook.com/
