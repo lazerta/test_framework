@@ -1,9 +1,11 @@
 package base;
 
-import com.aventstack.extentreports.ExtentReports;
+
+import com.relevantcodes.extentreports.ExtentReports;
+import com.relevantcodes.extentreports.LogStatus;
+
 import config.Config;
-import lombok.Data;
-import lombok.SneakyThrows;
+import config.Env;
 import org.codehaus.plexus.util.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -14,31 +16,51 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.PageFactory;
 import org.testng.ITestContext;
+import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
+import reporter.ExtentManager;
+import reporter.ReportTestManager;
 import utils.Utility;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-public class BrowserDriver {
+public abstract class BrowserDriver {
     public static WebDriver driver = null;
-    public static Config config = Config.getInstance();
-    public static ExtentReports reporter;
+    private static Config config = Config.getInstance();
+    private static ExtentReports extent;
 
-    public void setupReporter(ITestContext context) {
-
+    protected BrowserDriver() {
     }
 
+    @BeforeSuite
+    public void reportSetUp(ITestContext context) throws IOException {
+        ExtentManager.setOutputDirectory(context);
+        extent = ExtentManager.getInstance();
+        FileUtils.cleanDirectory(config.getEnv().getScreenshotPath());
+    }
+
+    @BeforeMethod
+    public void startExtent(Method method) {
+        String className = method.getDeclaringClass().getSimpleName();
+        ReportTestManager.startTest(method.getName());
+        ReportTestManager.getTest().assignCategory(className);
+    }
 
     @BeforeMethod
     public void setUp() throws MalformedURLException {
@@ -53,35 +75,41 @@ public class BrowserDriver {
         driver.manage().timeouts().implicitlyWait(config.getEnv().getImplicitWaitTime(), TimeUnit.SECONDS);
         driver.manage().timeouts().pageLoadTimeout(config.getEnv().getPageLoadTimeout(), TimeUnit.SECONDS);
         driver.get(config.getEnv().getUrl());
+        // driver.manage().deleteAllCookies();
 
 
     }
 
     protected String getStackTrace(Throwable t) {
+
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         t.printStackTrace(pw);
-        return sw.toString();
+        return "<br/>" + sw.toString().replace(System.lineSeparator(), "<br/>");
     }
 
-    public static void takeScreenShot(WebDriver driver, String screenshotName) {
-        DateFormat formatter = new SimpleDateFormat("(MM.dd.yyyy-HH:mma)");
-        Date date = new Date();
+    public static String takeScreenShot(WebDriver driver, String screenshotName) {
+        DateFormat formatter = new SimpleDateFormat("MM_dd_yyyy_HH_mm_ss");
+        String name = null;
         File file = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         try {
-            FileUtils.copyFile(file,
-                    new File(config.getEnv().getScreenshotPath() + screenshotName + "_" + formatter.format(date) + ".png"));
+            name = screenshotName + "_" + formatter.format(new Date()) + "_.png";
+            String location =
+                    config.getEnv().getScreenshotPath() + name;
             System.out.println("Screenshot captured");
+            FileUtils.copyFile(file, new File(location));
+
+
         } catch (IOException e) {
             System.err.println("Exception while taking screenshot " + e.getMessage());
         }
 
-
+        return name;
     }
 
     private WebDriver getLocalDriver(Config config) {
-        String windowsDriverPath = Config.resourcePath+"driver"+File.separator+"windows"+File.separator;
-        String macDriverPath = Config.resourcePath+"driver"+File.separator+"mac"+File.separator;
+        String windowsDriverPath = Config.resourcePath + "driver" + File.separator + "windows" + File.separator;
+        String macDriverPath = Config.resourcePath + "driver" + File.separator + "mac" + File.separator;
 
         String browserName = config.getBrowser().getName();
         String os = config.getEnv().getOs().toLowerCase();
@@ -105,7 +133,7 @@ public class BrowserDriver {
 
             }
             if (os.equalsIgnoreCase("mac")) {
-                System.setProperty("webdriver.chrome.driver", macDriverPath+"chromedriver");
+                System.setProperty("webdriver.chrome.driver", macDriverPath + "chromedriver");
                 return new ChromeDriver(options);
             }
         }
@@ -122,17 +150,61 @@ public class BrowserDriver {
 
 
             if (os.equalsIgnoreCase("windows")) {
-                System.setProperty("webdriver.gecko.driver", windowsDriverPath+"geckodriver.exe");
+                System.setProperty("webdriver.gecko.driver", windowsDriverPath + "geckodriver.exe");
                 return new FirefoxDriver(options);
             }
             if (os.equalsIgnoreCase("mac")) {
-                System.setProperty("webdriver.gecko.driver", macDriverPath+"geckodriver");
+                System.setProperty("webdriver.gecko.driver", macDriverPath + "geckodriver");
                 return new FirefoxDriver(options);
             }
         }
 
         throw new IllegalArgumentException("in valid operating system or browser name");
 
+    }
+
+    @AfterMethod
+    public void afterEachTestMethod(ITestResult result) {
+        ReportTestManager.getTest().getTest().setStartedTime(getTime(result.getStartMillis()));
+        ReportTestManager.getTest().getTest().setEndedTime(getTime(result.getEndMillis()));
+
+        for (String group : result.getMethod().getGroups()) {
+            ReportTestManager.getTest().assignCategory(group);
+        }
+
+        if (result.getStatus() == ITestResult.SUCCESS) {
+            ReportTestManager.getTest().log(LogStatus.PASS, "Test Passed");
+        }
+        if (result.getStatus() == 2) {
+            String screenShot = takeScreenShot(driver, result.getName());
+            ReportTestManager.getTest().log(LogStatus.FAIL, getStackTrace(result.getThrowable()));
+
+            screenShot = screenShot.replace('\\', '/');
+            System.out.println("screenShot = " + screenShot);
+
+            ReportTestManager.getTest().log(LogStatus.FAIL,
+                    ReportTestManager.getTest().addScreenCapture("../screenshots/"+screenShot));
+
+
+        }
+        if (result.getStatus() == 3) {
+            ReportTestManager.getTest().log(LogStatus.SKIP, "Test Skipped");
+        }
+        ReportTestManager.endTest();
+        extent.flush();
+        driver.quit();
+    }
+
+    @AfterSuite
+    public void generateReport() {
+        extent.flush();
+        extent.close();
+    }
+
+    private Date getTime(long startMillis) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(startMillis);
+        return calendar.getTime();
     }
 
     private WebDriver getCloudDriver(Config config) throws MalformedURLException {
@@ -155,6 +227,7 @@ public class BrowserDriver {
 
 
     }
+
 
     @AfterMethod
     public void tearDown() {

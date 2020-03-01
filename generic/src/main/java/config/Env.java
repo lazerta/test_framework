@@ -24,6 +24,7 @@ public final class Env {
     private Map<String, String> Capability = new HashMap<>();
     private String screenshotPath = System.getProperty("user.dir") + "/screenshots/";
     private String reportOutputDirectory = null;
+    private Map<String,String> SystemInfo = new HashMap<>();
 
 
 }

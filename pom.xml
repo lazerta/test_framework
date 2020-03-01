@@ -10,7 +10,6 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>generic</module>
-        <module>amazon_test</module>
     </modules>
 
     <properties>
@@ -50,6 +49,22 @@
                 <version>3.0.7</version>
             </dependency>
             <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>1.2.17</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.12</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>1.21</version>
+            </dependency>
+            <dependency>
                 <groupId>com.relevantcodes</groupId>
                 <artifactId>extentreports</artifactId>
                 <version>2.41.1</version>
@@ -59,15 +74,18 @@
                 <artifactId>plexus-utils</artifactId>
                 <version>3.1.0</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
-<dependencies>
-    <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-utils</artifactId>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+    </dependencies>
 
-</dependencies>
 </project>

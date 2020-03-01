@@ -28,10 +28,6 @@ public class Config {
 
     private synchronized static void load() {
         Yaml yaml = new Yaml();
-        // String path = System.getProperty("user.dir")+File.separator+"src"+File.separator+"main"+File.separator+
-        //         "resources";
-        // System.out.println("path = " + path);
-        // InputStream in = BrowserDriver.class.getClassLoader().getResourceAsStream("application.yaml");
         try (FileInputStream in = new FileInputStream(resourcePath + "application.yaml")) {
             config = yaml.loadAs(in, Config.class);
         } catch (IOException e) {

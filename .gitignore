@@ -3,5 +3,5 @@
 /generic/driver
 /.idea
 test_framework.iml
-
+/amazon_test
 *target
