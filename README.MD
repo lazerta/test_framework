@@ -27,10 +27,10 @@ options with default value
        isCloud : false
        cloudName:  # string 
        url: "https://www.google.com"
-    implicitWaitTime: 0
-     pageLoadTimeout: 300
-    cloudUsername:
-    cloudAccessKey:
-    Capability: # map 
-    SystemInfo: # map System info for extent report. 
+       implicitWaitTime: 0
+       pageLoadTimeout: 300
+       cloudUsername:
+       cloudAccessKey:
+       Capability: # map 
+       SystemInfo: # map System info for extent report. 
 ```

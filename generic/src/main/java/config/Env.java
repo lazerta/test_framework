@@ -21,7 +21,7 @@ public final class Env {
     private int pageLoadTimeout = 300;
     private String cloudUsername;
     private String cloudAccessKey;
-    private Map<String, String> Capability = new HashMap<>();
+    private Map<String, String> capability = new HashMap<>();
     private String screenshotPath = System.getProperty("user.dir") + "/screenshots/";
     private String reportOutputDirectory = null;
     private Map<String,String> SystemInfo = new HashMap<>();
