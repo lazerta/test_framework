@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class BrowserDriver {
     public static WebDriver driver = null;
-    private static Config config = Config.getInstance();
+    private static Config config;
     private static ExtentReports extent;
 
     protected BrowserDriver() {
@@ -48,9 +48,13 @@ public abstract class BrowserDriver {
 
     @BeforeSuite
     public void reportSetUp(ITestContext context) throws IOException {
+        config =Config.getInstance();
         ExtentManager.setOutputDirectory(context);
         extent = ExtentManager.getInstance();
-        FileUtils.cleanDirectory(config.getEnv().getScreenshotPath());
+        File screenshotFolder = new File(config.getEnv().getScreenshotPath());
+        if (screenshotFolder.exists()) {
+            FileUtils.cleanDirectory(screenshotFolder);
+        }
     }
 
     @BeforeMethod
@@ -181,7 +185,7 @@ public abstract class BrowserDriver {
             System.out.println("screenShot = " + screenShot);
 
             ReportTestManager.getTest().log(LogStatus.FAIL,
-                    ReportTestManager.getTest().addScreenCapture("../screenshots/"+screenShot));
+                    ReportTestManager.getTest().addScreenCapture("../screenshots/" + screenShot));
 
 
         }

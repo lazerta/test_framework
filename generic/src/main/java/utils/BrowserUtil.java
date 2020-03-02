@@ -14,7 +14,7 @@ public class BrowserUtil {
         WebDriverWait wait = new WebDriverWait(driver, timer);
         wait.until(condition);
     }
-    public void  sleep(int time){
+    public static void  sleep(int time){
         try {
             Thread.sleep(TimeUnit.SECONDS.toMillis(time));
         } catch (InterruptedException e) {

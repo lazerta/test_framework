@@ -22,6 +22,9 @@ public class Config {
     public static Config getInstance() {
         if (config == null) {
             load();
+            if (config.getBrowser() == null){
+                config.setBrowser(new Browser());
+            }
         }
         return config;
     }
