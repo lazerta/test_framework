@@ -9,7 +9,7 @@ import utils.BrowserUtil;
 import javax.xml.ws.WebEndpoint;
 
 public class GuruLoginPO {
-    @FindBy(how = How.XPATH, using = "//input[@name]='btnLogin'")
+    @FindBy(how = How.XPATH, using = "//input[@name='btnLogin']")
     @CacheLookup
     private WebElement loginBtn;
     @FindBy(name = "uid")

@@ -9,6 +9,7 @@ import org.testng.ITestContext;
 import org.testng.Reporter;
 
 import java.io.File;
+import java.net.URL;
 
 public class ExtentManager {
     private static ExtentReports extentReports;
@@ -46,7 +47,12 @@ public class ExtentManager {
                 .addSystemInfo("Environment", "QA")
                 .addSystemInfo("User Name", "Team_Three");
         extentReports.addSystemInfo(Config.getInstance().getEnv().getSystemInfo());
-        extentReports.loadConfig(BrowserDriver.class.getClassLoader().getResource(("report-config.xml")));
+        URL resource = BrowserDriver.class.getClassLoader().getResource(("report-config.xml"));
+        if (resource == null){
+            throw  new IllegalArgumentException("report-config.xml must be located in resources ");
+        }
+
+        // extentReports.loadConfig(BrowserDriver.class.getClassLoader().getResource(("report-config.xml")));
 
     }
 

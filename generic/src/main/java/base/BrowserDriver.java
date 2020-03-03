@@ -8,11 +8,13 @@ import config.Config;
 import org.codehaus.plexus.util.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.ITestContext;
@@ -48,7 +50,7 @@ public abstract class BrowserDriver {
 
     @BeforeSuite
     public void reportSetUp(ITestContext context) throws IOException {
-        config =Config.getInstance();
+        config = Config.getInstance();
         ExtentManager.setOutputDirectory(context);
         extent = ExtentManager.getInstance();
         File screenshotFolder = new File(config.getEnv().getScreenshotPath());
@@ -110,6 +112,9 @@ public abstract class BrowserDriver {
     }
 
     private WebDriver getLocalDriver(Config config) {
+        DesiredCapabilities common = new DesiredCapabilities();
+        common.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
+
         String windowsDriverPath = Config.resourcePath + "driver" + File.separator + "windows" + File.separator;
         String macDriverPath = Config.resourcePath + "driver" + File.separator + "mac" + File.separator;
 
@@ -126,6 +131,7 @@ public abstract class BrowserDriver {
 
 
             DesiredCapabilities capabilities = DesiredCapabilities.chrome();
+            capabilities.merge(common);
             capabilities.setCapability(ChromeOptions.CAPABILITY, options);
             Utility.mergeCapacity(config.getEnv().getCapability(), capabilities);
 
@@ -147,6 +153,7 @@ public abstract class BrowserDriver {
             options.addArguments("--private");
             options.addArguments(config.getBrowser().getOptions());
             DesiredCapabilities capabilities = DesiredCapabilities.firefox();
+            capabilities.merge(common);
             capabilities.setCapability(FirefoxOptions.FIREFOX_OPTIONS, options);
             Utility.mergeCapacity(config.getEnv().getCapability(), capabilities);
 
