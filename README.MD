@@ -14,7 +14,7 @@ windows driver under resources/driver/windows
 mac driver under resources/driver/mac
 Base configuration is done in application.yaml under resources
 ## Application.yaml
-If file or any config is missing. It fail back to default values shown in below
+If file or any config is missing. It fall back to default values shown in below
 options with default value
 ```yaml
    browser:
