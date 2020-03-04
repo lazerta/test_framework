@@ -10,7 +10,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>generic</module>
-<!--        <module>guru_test</module>-->
+        <module>automationtest</module>
     </modules>
 
     <properties>

@@ -48,11 +48,17 @@ public class ExtentManager {
                 .addSystemInfo("User Name", "Team_Three");
         extentReports.addSystemInfo(Config.getInstance().getEnv().getSystemInfo());
         URL resource = BrowserDriver.class.getClassLoader().getResource(("report-config.xml"));
+
         if (resource == null){
             throw  new IllegalArgumentException("report-config.xml must be located in resources ");
         }
+        try {
+            extentReports.loadConfig(BrowserDriver.class.getClassLoader().getResource(("report-config.xml")));
+        } catch (Exception e) {
 
-        // extentReports.loadConfig(BrowserDriver.class.getClassLoader().getResource(("report-config.xml")));
+            System.err.println(BrowserDriver.class.getClassLoader().getResource(("report-config.xml")));
+        }
+
 
     }
 

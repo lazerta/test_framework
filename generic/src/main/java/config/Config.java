@@ -9,8 +9,8 @@ import java.io.*;
 @Data
 public class Config {
     private static Config config = null;
-    private Browser browser = new Browser();
-    private Env env = new Env();
+    private Browser browser;
+    private Env env;
     public static String resourcePath =
             System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator +
                     "resources" + File.separator;
@@ -18,14 +18,10 @@ public class Config {
             System.getProperty("user.dir") + File.separator + "src" + File.separator + "test" + File.separator +
                     "resources" + File.separator;
 
-    private Config() {
-    }
-
 
     public static Config getInstance() {
         if (config == null) {
             load();
-
         }
         return config;
     }
@@ -34,9 +30,18 @@ public class Config {
         Yaml yaml = new Yaml();
         try (FileInputStream in = new FileInputStream(resourcePath + "application.yaml")) {
             config = yaml.loadAs(in, Config.class);
+            if (config == null) {
+                throw new IllegalArgumentException("failed to parse file. Check if it is empty");
+            }
         } catch (IOException e) {
-
             config = new Config();
         }
+        if (config.getEnv() ==  null){
+            config.setEnv(new Env());
+        }
+        if (config.getBrowser() == null){
+            config.setBrowser(new Browser());
+        }
+
     }
 }

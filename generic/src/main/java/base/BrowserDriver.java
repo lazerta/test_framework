@@ -36,6 +36,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -183,10 +184,15 @@ public abstract class BrowserDriver {
 
         if (result.getStatus() == ITestResult.SUCCESS) {
             ReportTestManager.getTest().log(LogStatus.PASS, "Test Passed");
+
         }
-        if (result.getStatus() == 2) {
+        if (result.getStatus() == ITestResult.FAILURE) {
+
+
             String screenShot = takeScreenShot(driver, result.getName());
             ReportTestManager.getTest().log(LogStatus.FAIL, getStackTrace(result.getThrowable()));
+            ReportTestManager.getTest().log(LogStatus.FAIL, getMethodArgumentInfo(result));
+
 
             screenShot = screenShot.replace('\\', '/');
             System.out.println("screenShot = " + screenShot);
@@ -204,9 +210,32 @@ public abstract class BrowserDriver {
         driver.quit();
     }
 
+    private String getMethodArgumentInfo(ITestResult result) {
+        Object[] parameters = result.getParameters();
+        StringBuilder sb = new StringBuilder();
+        sb.append("<br/>")
+                .append("with following ")
+                .append(parameters.length)
+                .append(" arguments: ");
+        Arrays.stream(parameters).forEach(arg ->
+                sb.append("<br/>")
+                        .append(arg)
+                        .append("<br/>")
+                        .append("type: ")
+                        .append(arg.getClass().getTypeName())
+                        .append("</br>")
+
+
+        );
+        return sb.toString();
+    }
+
     @AfterSuite
     public void generateReport() {
         extent.flush();
+        if (extent == null) {
+            throw new IllegalStateException("error with test ng xml");
+        }
         extent.close();
     }
 
