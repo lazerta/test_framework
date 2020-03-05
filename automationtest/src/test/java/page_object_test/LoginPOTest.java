@@ -34,7 +34,7 @@ public class LoginPOTest extends BrowserDriver {
     public Object[][] validProvide() throws Exception {
         ExcelReader excelReader = new ExcelReader();
         excelReader.setExcelFile("test.xlsx");
-        return excelReader.getExcelSheetData(1);
+        return excelReader.getExcelSheetData(2);
     }
 
     @Test(dataProvider = "valid")
@@ -50,7 +50,7 @@ public class LoginPOTest extends BrowserDriver {
 
         boolean equals = driver.getCurrentUrl().equals("http://automationpractice.com/index.php?controller=authentication");
         BrowserUtil.waitFor(10, ExpectedConditions.presenceOfElementLocated(By.className("alert")));
-        Assert.assertTrue(equals);
+        Assert.assertFalse(equals);
     }
 
 

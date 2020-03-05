@@ -50,7 +50,7 @@ public class ExcelReader {
         for (int i = 0; i < rowCount; i++) {
             XSSFRow row = sheet.getRow(i);
             for (int j = 0; j < colCount; j++) {
-                XSSFCell cell = row.getCell(colCount, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                XSSFCell cell = row.getCell(j);
                 data[i][j] = cell.getStringCellValue();
             }
         }
