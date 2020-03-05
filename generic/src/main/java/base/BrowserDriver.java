@@ -58,6 +58,7 @@ public abstract class BrowserDriver {
         if (screenshotFolder.exists()) {
             FileUtils.cleanDirectory(screenshotFolder);
         }
+
     }
 
     @BeforeMethod
@@ -202,7 +203,7 @@ public abstract class BrowserDriver {
 
 
         }
-        if (result.getStatus() == 3) {
+        if (result.getStatus() == ITestResult.SKIP) {
             ReportTestManager.getTest().log(LogStatus.SKIP, "Test Skipped");
         }
         ReportTestManager.endTest();
@@ -233,9 +234,6 @@ public abstract class BrowserDriver {
     @AfterSuite
     public void generateReport() {
         extent.flush();
-        if (extent == null) {
-            throw new IllegalStateException("error with test ng xml");
-        }
         extent.close();
     }
 
