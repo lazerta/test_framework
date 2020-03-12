@@ -41,6 +41,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+/**
+ *  Base class for all tests
+ *  provide configuration and setup for entire framework
+ *
+ */
 public abstract class BrowserDriver {
     public static WebDriver driver = null;
     private static Config config;
@@ -49,16 +54,25 @@ public abstract class BrowserDriver {
     protected BrowserDriver() {
     }
 
+    /**
+     *   set up extent reports
+     * @param context
+     * @throws IOException
+     */
     @BeforeSuite
     public void reportSetUp(ITestContext context) throws IOException {
         config = Config.getInstance();
         ExtentManager.setOutputDirectory(context);
         extent = ExtentManager.getInstance();
         File screenshotFolder = new File(config.getEnv().getScreenshotPath());
+        clearOldScreenShot(screenshotFolder);
+
+    }
+
+    private void clearOldScreenShot(File screenshotFolder) throws IOException {
         if (screenshotFolder.exists()) {
             FileUtils.cleanDirectory(screenshotFolder);
         }
-
     }
 
     @BeforeMethod
@@ -68,6 +82,10 @@ public abstract class BrowserDriver {
         ReportTestManager.getTest().assignCategory(className);
     }
 
+    /**
+     *  set  up driver before method call
+     * @throws MalformedURLException
+     */
     @BeforeMethod
     public void setUp() throws MalformedURLException {
 
@@ -81,11 +99,16 @@ public abstract class BrowserDriver {
         driver.manage().timeouts().implicitlyWait(config.getEnv().getImplicitWaitTime(), TimeUnit.SECONDS);
         driver.manage().timeouts().pageLoadTimeout(config.getEnv().getPageLoadTimeout(), TimeUnit.SECONDS);
         driver.get(config.getEnv().getUrl());
-        // driver.manage().deleteAllCookies();
+        driver.manage().deleteAllCookies();
 
 
     }
 
+    /**
+     *
+     * @param t an exception
+     * @return string for output to report
+     */
     protected String getStackTrace(Throwable t) {
 
         StringWriter sw = new StringWriter();
@@ -94,12 +117,18 @@ public abstract class BrowserDriver {
         return "<br/>" + sw.toString().replace(System.lineSeparator(), "<br/>");
     }
 
+    /**
+     *
+     * @param driver
+     * @param screenshotName
+     * @return  absolute path of the screenshot taken
+     */
     public static String takeScreenShot(WebDriver driver, String screenshotName) {
         DateFormat formatter = new SimpleDateFormat("MM_dd_yyyy_HH_mm_ss");
         String name = null;
         File file = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         try {
-            name = screenshotName + "_" + formatter.format(new Date()) + "_.png";
+            name = generateScreenShotName(screenshotName, formatter);
             String location =
                     config.getEnv().getScreenshotPath() + name;
             System.out.println("Screenshot captured");
@@ -113,6 +142,17 @@ public abstract class BrowserDriver {
         return name;
     }
 
+    private static String generateScreenShotName(String screenshotName, DateFormat formatter) {
+        String name;
+        name = screenshotName + "_" + formatter.format(new Date()) + "_.png";
+        return name;
+    }
+
+    /**
+     *
+     * @param config
+     * @return  a instance of webdriver that is configured with options
+     */
     private WebDriver getLocalDriver(Config config) {
         DesiredCapabilities common = new DesiredCapabilities();
         common.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
@@ -125,53 +165,78 @@ public abstract class BrowserDriver {
 
         if (browserName.equalsIgnoreCase("chrome")) {
 
-            ChromeOptions options = new ChromeOptions();
-            options.addArguments("--start-maximized");
-            options.addArguments("--ignore-certificate-errors");
-            options.addArguments("--incognito");
-            options.addArguments(config.getBrowser().getOptions());
-
-
-            DesiredCapabilities capabilities = DesiredCapabilities.chrome();
-            capabilities.merge(common);
-            capabilities.setCapability(ChromeOptions.CAPABILITY, options);
-            Utility.mergeCapacity(config.getEnv().getCapability(), capabilities);
+            ChromeOptions options = getChromeOptions(config, common);
 
             if (os.equalsIgnoreCase("windows")) {
-                System.setProperty("webdriver.chrome.driver", windowsDriverPath + "chromedriver.exe");
+           setDriverPath(windowsDriverPath, "webdriver.chrome.driver", "chromedriver.exe");
                 return new ChromeDriver(options);
-
             }
             if (os.equalsIgnoreCase("mac")) {
-                System.setProperty("webdriver.chrome.driver", macDriverPath + "chromedriver");
+                setDriverPath(macDriverPath, "webdriver.chrome.driver", "chromedriver");
                 return new ChromeDriver(options);
             }
         }
         if (browserName.equalsIgnoreCase("firefox")) {
 
-            FirefoxOptions options = new FirefoxOptions();
-            options.addArguments("--start-maximized");
-            options.addArguments("--ignore-certificate-errors");
-            options.addArguments("--private");
-            options.addArguments(config.getBrowser().getOptions());
-            DesiredCapabilities capabilities = DesiredCapabilities.firefox();
-            capabilities.merge(common);
-            capabilities.setCapability(FirefoxOptions.FIREFOX_OPTIONS, options);
-            Utility.mergeCapacity(config.getEnv().getCapability(), capabilities);
+            FirefoxOptions options = getFirefoxOptions(config, common);
 
 
             if (os.equalsIgnoreCase("windows")) {
-                System.setProperty("webdriver.gecko.driver", windowsDriverPath + "geckodriver.exe");
+                setDriverPath(windowsDriverPath, "webdriver.gecko.driver", "geckodriver.exe");
                 return new FirefoxDriver(options);
             }
             if (os.equalsIgnoreCase("mac")) {
-                System.setProperty("webdriver.gecko.driver", macDriverPath + "geckodriver");
+                setDriverPath(macDriverPath, "webdriver.gecko.driver", "geckodriver");
                 return new FirefoxDriver(options);
             }
         }
 
         throw new IllegalArgumentException("in valid operating system or browser name");
 
+    }
+
+    /**
+     * set up location of exe drivers.
+     * @param windowsDriverPath
+     * @param s folder name
+     * @param s2 filename
+     */
+    private void setDriverPath(String windowsDriverPath, String s, String s2) {
+        System.setProperty(s, windowsDriverPath + s2);
+    }
+
+    /**
+     *
+     * @param config
+     * @param common common desiredCapabilities for all  drivers
+     * @return
+     */
+    private FirefoxOptions getFirefoxOptions(Config config, DesiredCapabilities common) {
+        FirefoxOptions options = new FirefoxOptions();
+        options.addArguments("--start-maximized");
+        options.addArguments("--ignore-certificate-errors");
+        options.addArguments("--private");
+        DesiredCapabilities capabilities = DesiredCapabilities.firefox();
+        capabilities.merge(common);
+        capabilities.setCapability(FirefoxOptions.FIREFOX_OPTIONS, options);
+        Utility.mergeCapacity(config.getEnv().getCapability(), capabilities);
+        return options;
+    }
+
+
+    private ChromeOptions getChromeOptions(Config config, DesiredCapabilities common) {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--start-maximized");
+        options.addArguments("--ignore-certificate-errors");
+        options.addArguments("--incognito");
+        options.addArguments(config.getBrowser().getOptions());
+
+
+        DesiredCapabilities capabilities = DesiredCapabilities.chrome();
+        capabilities.merge(common);
+        capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+        Utility.mergeCapacity(config.getEnv().getCapability(), capabilities);
+        return options;
     }
 
     @AfterMethod
@@ -191,10 +256,11 @@ public abstract class BrowserDriver {
 
 
             String screenShot = takeScreenShot(driver, result.getName());
+            // output exception info to the report
             ReportTestManager.getTest().log(LogStatus.FAIL, getStackTrace(result.getThrowable()));
             ReportTestManager.getTest().log(LogStatus.FAIL, getMethodArgumentInfo(result));
 
-
+            // add screenCapture to report when test failed
             screenShot = screenShot.replace('\\', '/');
             System.out.println("screenShot = " + screenShot);
 
@@ -210,7 +276,7 @@ public abstract class BrowserDriver {
         extent.flush();
         driver.quit();
     }
-
+  // get info about parameter when test failed  and format to output the report
     private String getMethodArgumentInfo(ITestResult result) {
         Object[] parameters = result.getParameters();
         StringBuilder sb = new StringBuilder();
@@ -242,6 +308,7 @@ public abstract class BrowserDriver {
         calendar.setTimeInMillis(startMillis);
         return calendar.getTime();
     }
+
 
     private WebDriver getCloudDriver(Config config) throws MalformedURLException {
 

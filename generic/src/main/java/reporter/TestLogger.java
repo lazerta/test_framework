@@ -5,6 +5,9 @@ import org.apache.maven.surefire.shade.org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
 import org.testng.Reporter;
 
+/**
+ * Logger
+ */
 public class TestLogger {
     public static void log(final String message){
         Reporter.log(message,true);

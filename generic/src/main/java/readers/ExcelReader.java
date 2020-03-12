@@ -11,12 +11,20 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.FileInputStream;
 import java.util.Arrays;
 
+/**
+ * read from excel
+ */
 public class ExcelReader {
     protected XSSFSheet excelSheet;
     protected XSSFWorkbook excelWBook;
     protected XSSFCell Cell;
     protected XSSFRow row;
 
+    /**
+     * read file from src/test/resources + path
+     * @param path
+     * @throws Exception
+     */
     public void setExcelFile(String path) throws Exception {
 
         try (FileInputStream inputStream = new FileInputStream(Config.testResource + path)) {
@@ -25,11 +33,22 @@ public class ExcelReader {
 
     }
 
+    /**
+     *
+     * @param sheetName name of the excel sheet
+     * @return a 2d array for data provider
+     * @throws Exception
+     */
     @SuppressWarnings("null")
     public String[][] getExcelSheetData(String sheetName) throws Exception {
         return readeSheet(excelWBook.getSheet(sheetName));
     }
-
+    /**
+     *
+     * @param index of the excel sheet
+     * @return a 2d array for data provider
+     * @throws Exception
+     */
     public String[][] getExcelSheetData(int index) throws Exception {
         String[][] strings = readeSheet(excelWBook.getSheetAt(index));
         if (strings.length == 0) {

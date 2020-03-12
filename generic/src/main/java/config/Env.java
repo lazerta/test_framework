@@ -9,7 +9,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * @author shawn
+ *  dummy class for loading configuration
+ */
 @Data
 public final class Env {
     private String os = "windows";

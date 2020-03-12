@@ -11,6 +11,9 @@ import org.testng.Reporter;
 import java.io.File;
 import java.net.URL;
 
+/**
+ * singleton class to manage extent report
+ */
 public class ExtentManager {
     private static ExtentReports extentReports;
     private static ITestContext context;
@@ -27,6 +30,10 @@ public class ExtentManager {
         return extentReports;
     }
 
+    /**
+     * set up output directory of the test output
+     * and add additional system info to the report
+     */
     private synchronized static void init() {
         String reportPath = env.getReportOutputDirectory();
 

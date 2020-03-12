@@ -5,7 +5,10 @@ import lombok.Data;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
-
+/**
+ * @author shawn
+ *  dummy class for loading configuration
+ */
 @Data
 public class Config {
     private static Config config = null;
@@ -26,6 +29,9 @@ public class Config {
         return config;
     }
 
+    /**
+     * load application.yaml from src/main/resources and  init with default setting if file is not present
+     */
     private synchronized static void load() {
         Yaml yaml = new Yaml();
         try (FileInputStream in = new FileInputStream(resourcePath + "application.yaml")) {

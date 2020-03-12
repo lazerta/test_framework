@@ -34,6 +34,7 @@ public class LoginPOTest extends BrowserDriver {
     public Object[][] validProvide() throws Exception {
         ExcelReader excelReader = new ExcelReader();
         excelReader.setExcelFile("test.xlsx");
+        BrowserUtil.runScript("console.log('sss')");
         return excelReader.getExcelSheetData(2);
     }
 
